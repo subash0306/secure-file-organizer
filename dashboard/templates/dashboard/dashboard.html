@@ -1,0 +1,113 @@
+{% extends 'dashboard/base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>📂 Secure File Dashboard</h2>
+    <a href="{% url 'upload' %}" class="btn btn-primary mt-2 mb-4">Choose & Upload File</a>
+
+    {% if files %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td>{{ file.file.name }}</td>
+                    <td>
+                        <a href="{% url 'encrypt_file' file.id %}" class="btn btn-success btn-sm">Encrypt</a>
+                        <a href="{% url 'decrypt_file' file.id %}" class="btn btn-warning btn-sm">Decrypt</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No files uploaded yet.</p>
+    {% endif %}
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>File Name</th>
+            <th>Scan Result</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in files %}
+        <tr>
+            <td>{{ file.file.name }}</td>
+            <td>
+                {% if file.scan_result == "clean" %}
+                    <span class="badge bg-success">Clean</span>
+                {% elif file.scan_result == "suspicious" %}
+                    <span class="badge bg-warning text-dark">Suspicious</span>
+                {% elif file.scan_result == "infected" %}
+                    <span class="badge bg-danger">Infected</span>
+                {% else %}
+                    <span class="badge bg-secondary">Not scanned</span>
+                {% endif %}
+            </td>
+
+            <td>
+                <a href="{% url 'encrypt_file' file.id %}" class="btn btn-sm btn-success">Encrypt</a>
+                <a href="{% url 'decrypt_file' file.id %}" class="btn btn-sm btn-warning">Decrypt</a>
+                <a href="{% url 'delete_file' file.id %}" class="btn btn-sm btn-danger">Delete</a>
+                <a href="{% url 'scan_file' file.id %}" class="btn btn-sm btn-info mt-1">Scan</a>
+            </td>
+            <td>
+                {% if file.scan_result == "clean" %}
+                    <span class="badge bg-success">Safe</span>
+                {% elif file.scan_result == "suspicious" %}
+                    <span class="badge bg-warning">Suspicious</span>
+                {% elif file.scan_result == "infected" %}
+                    <span class="badge bg-danger">Infected</span>
+                {% else %}
+                    <span class="badge bg-secondary">{{ file.scan_result }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<style>
+  .badge {
+    font-size: 0.9em;
+    padding: 6px 10px;
+    border-radius: 8px;
+  }
+</style>
+
+
+<h2 class="mt-5">Recent Activity Logs</h2>
+<table class="table table-striped mt-3">
+    <thead class="table-dark">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Action</th>
+            <th scope="col">Timestamp</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ log.action }}</td>
+            <td>{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No recent activity.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+{% endblock %}
